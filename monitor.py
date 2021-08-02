@@ -4,7 +4,8 @@ import os
 import Adafruit_DHT
 import psutil
 from gpiozero import CPUTemperature
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS
 from dotenv import load_dotenv
 
 # crontab -e
@@ -39,6 +40,6 @@ request_body = [{
     "time": datetime.utcnow().isoformat(),
     "fields": its
 }]
-client = InfluxDBClient(os.getenv("INFHOST"), "8086", os.getenv("INFUSER"),
-                        os.getenv("INFPASS"), os.getenv("INFDB"))
-client.write_points(request_body)
+client = InfluxDBClient(url=os.getenv("INFHOST"), token=os.getenv("INFTOKEN"))
+write_api = client.write_api(write_options=SYNCHRONOUS)
+write_api.write(os.getenv("INFDB"), os.getenv("INFORG"), request_body)
