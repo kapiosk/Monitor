@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 import subprocess
 import os
@@ -41,7 +41,7 @@ for pc, ip in pcs["ping"].items():
 request_body = [{
     "measurement": "Network",
     "tags": {},
-    "time": datetime.utcnow().isoformat(),
+    "time": datetime.now(timezone.utc).isoformat(),
     "fields": its
 }]
 

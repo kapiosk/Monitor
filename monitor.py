@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 
 import adafruit_dht
@@ -36,7 +36,7 @@ its.update(CPUPercent=psutil.cpu_percent())
 request_body = [{
     "measurement": "DHT22",
     "tags": {},
-    "time": datetime.utcnow().isoformat(),
+    "time": datetime.now(timezone.utc).isoformat(),
     "fields": its
 }]
 
