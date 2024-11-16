@@ -2,3 +2,5 @@
 .env.bak
 env/
 pingList.json
+venv/
+log_file*

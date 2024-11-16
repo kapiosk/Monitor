@@ -1,15 +1,13 @@
 from datetime import datetime
 import os
 
-import Adafruit_DHT
+import adafruit_dht
+import board
 import psutil
 from gpiozero import CPUTemperature
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 from dotenv import load_dotenv
-
-# crontab -e
-# */1 * * * * cd /home/pi/Development/Monitor && python3 monitor.py
 
 def CheckValue(val):
     return val is not None and val < 200 and val > 15
@@ -18,9 +16,10 @@ load_dotenv()
 
 its = {}
 
-DHT_SENSOR = Adafruit_DHT.DHT22
-DHT_PIN = 4
-humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
+dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
+
+temperature = dhtDevice.temperature
+humidity = dhtDevice.humidity
 
 if CheckValue(temperature):
     its.update(Temperature=temperature)
@@ -40,6 +39,7 @@ request_body = [{
     "time": datetime.utcnow().isoformat(),
     "fields": its
 }]
+
 client = InfluxDBClient(url=os.getenv("INFHOST"), token=os.getenv("INFTOKEN"))
 write_api = client.write_api(write_options=SYNCHRONOUS)
-write_api.write(os.getenv("INFDB"), os.getenv("INFORG"), request_body)
+write_api.write(os.getenv("INFBUCKET"), os.getenv("INFORG"), request_body)
